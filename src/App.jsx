@@ -1,7 +1,9 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import StudentMarks from "./pages/StudentMarks";
+import ClassPage from "./pages/ClassPage";
+import SubjectMarks from "./pages/SubjectMarks";
 import ReportGeneration from "./pages/ReportGeneration";
 import SingleReport from "./pages/SingleReport";
 
@@ -14,9 +16,8 @@ function App() {
           <h1 className="text-2xl font-bold">ClassHive 2.0</h1>
           <ul className="flex space-x-6">
             <li><Link to="/" className="hover:text-gray-200">Home</Link></li>
-            <li><Link to="/marks" className="hover:text-gray-200">Enter Marks</Link></li>
-            <li><Link to="/reports" className="hover:text-gray-200">Generate Reports</Link></li>
             <li><Link to="/dashboard" className="hover:text-gray-200">Dashboard</Link></li>
+            <li><Link to="/reports" className="hover:text-gray-200">Reports</Link></li>
           </ul>
         </nav>
 
@@ -24,9 +25,10 @@ function App() {
         <main className="p-8">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/marks" element={<StudentMarks />} />
-            <Route path="/reports" element={<ReportGeneration />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/class/:id" element={<ClassPage />} />
+            <Route path="/class/:id/subject/:subjectName" element={<SubjectMarks />} />
+            <Route path="/reports" element={<ReportGeneration />} />
             <Route path="/reports/:id" element={<SingleReport />} />
           </Routes>
         </main>
