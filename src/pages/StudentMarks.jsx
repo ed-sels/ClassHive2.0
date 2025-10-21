@@ -1,104 +1,58 @@
-import React, { useState } from "react";
+// src/pages/StudentMarks.jsx
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSchool } from "../context/SchoolContext";
 
-const StudentMarks = () => {
+
+export default function StudentMarks() {
   const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      subjects: [
-        { name: "Math", mark: 75 },
-        { name: "Science", mark: 82 },
-      ],
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      subjects: [
-        { name: "Math", mark: 90 },
-        { name: "Science", mark: 85 },
-      ],
-    },
+    { id: 1, name: "John Doe", subjects: { Math: {}, English: {} } },
+    { id: 2, name: "Jane Smith", subjects: { Math: {}, English: {} } },
   ]);
 
-  const handleMarkChange = (studentId, subjectName, newMark) => {
-    const updatedStudents = students.map((student) => {
-      if (student.id === studentId) {
-        const updatedSubjects = student.subjects.map((subject) =>
-          subject.name === subjectName
-            ? { ...subject, mark: parseInt(newMark) || 0 }
-            : subject
-        );
-        return { ...student, subjects: updatedSubjects };
-      }
-      return student;
-    });
-    setStudents(updatedStudents);
+  const [subjects] = useState(["Math", "English", "Science", "ICT", "Social Studies"]);
+
+  const handleInputChange = (studentId, subject, field, value) => {
+    setStudents((prev) =>
+      prev.map((s) => {
+        if (s.id === studentId) {
+          const updatedSubject = {
+            ...s.subjects[subject],
+            [field]: Number(value),
+          };
+          return {
+            ...s,
+            subjects: { ...s.subjects, [subject]: updatedSubject },
+          };
+        }
+        return s;
+      })
+    );
   };
 
-  const addSubject = (studentId) => {
-    const subjectName = prompt("Enter new subject name:");
-    if (!subjectName) return;
+  const calculateTotal = (scores) => {
+    const { test1 = 0, test2 = 0, group = 0, project = 0, exam = 0 } = scores;
+    const rawTotal = test1 + test2 + group + project + exam;
+    const maxTotal = 200; // 20 + 20 + 20 + 40 + 100
+    return (rawTotal / maxTotal) * 100;
+  };
 
-    const updatedStudents = students.map((student) => {
-      if (student.id === studentId) {
-        return {
-          ...student,
-          subjects: [...student.subjects, { name: subjectName, mark: 0 }],
-        };
-      }
-      return student;
-    });
-
-    setStudents(updatedStudents);
+  const calculateGrade = (mark) => {
+    if (mark >= 80) return "A";
+    if (mark >= 70) return "B";
+    if (mark >= 60) return "C";
+    if (mark >= 50) return "D";
+    return "F";
   };
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6">Enter Student Marks</h2>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-4">Enter Student Marks</h2>
       <div className="space-y-8">
         {students.map((student) => (
-          <div
-            key={student.id}
-            className="bg-white shadow-md rounded-lg p-6 border"
-          >
-            <h3 className="text-xl font-semibold mb-4">{student.name}</h3>
-            <table className="min-w-full border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Subject</th>
-                  <th className="border p-2 text-left">Mark</th>
-                </tr>
-              </thead>
-              <tbody>
-                {student.subjects.map((subject, index) => (
-                  <tr key={index}>
-                    <td className="border p-2">{subject.name}</td>
-                    <td className="border p-2">
-                      <input
-                        type="number"
-                        value={subject.mark}
-                        onChange={(e) =>
-                          handleMarkChange(
-                            student.id,
-                            subject.name,
-                            e.target.value
-                          )
-                        }
-                        className="w-20 p-1 border rounded"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mt-4 flex space-x-4">
-              <button
-                onClick={() => addSubject(student.id)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                + Add Subject
-              </button>
+          <div key={student.id} className="border p-4 rounded-lg shadow-md bg-white">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">{student.name}</h3>
               <Link
                 to={`/reports/${student.id}`}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -106,11 +60,51 @@ const StudentMarks = () => {
                 View Report
               </Link>
             </div>
+
+            {subjects.map((subject) => (
+              <div key={subject} className="mb-6 border-t pt-4">
+                <h4 className="text-lg font-medium mb-2">{subject}</h4>
+                <div className="grid grid-cols-5 gap-2 mb-2">
+                  <input
+                    type="number"
+                    placeholder="Test 1 (20)"
+                    className="border p-2 rounded"
+                    onChange={(e) => handleInputChange(student.id, subject, "test1", e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Test 2 (20)"
+                    className="border p-2 rounded"
+                    onChange={(e) => handleInputChange(student.id, subject, "test2", e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Group Work (20)"
+                    className="border p-2 rounded"
+                    onChange={(e) => handleInputChange(student.id, subject, "group", e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Project (40)"
+                    className="border p-2 rounded"
+                    onChange={(e) => handleInputChange(student.id, subject, "project", e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Exam (100)"
+                    className="border p-2 rounded"
+                    onChange={(e) => handleInputChange(student.id, subject, "exam", e.target.value)}
+                  />
+                </div>
+
+                <p className="text-gray-700 text-sm">
+                  Striked Total: {calculateTotal(student.subjects[subject] || {}).toFixed(2)}% — Grade: {calculateGrade(calculateTotal(student.subjects[subject] || {}))}
+                </p>
+              </div>
+            ))}
           </div>
         ))}
       </div>
     </div>
   );
-};
-
-export default StudentMarks;
+}
