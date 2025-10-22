@@ -13,7 +13,12 @@ export const SchoolProvider = ({ children }) => {
   }, [classes]);
 
   const addClass = (className) => {
-    const newClass = { id: Date.now().toString(), name: className, subjects: [], students: [] };
+    const newClass = {
+      id: Date.now().toString(),
+      name: className,
+      subjects: [],
+      students: [],
+    };
     setClasses((prev) => [...prev, newClass]);
   };
 
@@ -33,14 +38,18 @@ export const SchoolProvider = ({ children }) => {
         cls.id === classId
           ? {
               ...cls,
-              students: [...cls.students, { id: Date.now().toString(), name: studentName, marks: {} }],
+              students: [
+                ...cls.students,
+                { id: Date.now().toString(), name: studentName, marks: {} },
+              ],
             }
           : cls
       )
     );
   };
 
-  const updateStudentMarks = (classId, studentId, subjectName, marks) => {
+  // Renamed function to be clear and match your previous component
+  const addOrUpdateStudentMark = (classId, studentId, subjectName, marks) => {
     setClasses((prev) =>
       prev.map((cls) =>
         cls.id === classId
@@ -50,10 +59,7 @@ export const SchoolProvider = ({ children }) => {
                 stu.id === studentId
                   ? {
                       ...stu,
-                      marks: {
-                        ...stu.marks,
-                        [subjectName]: marks,
-                      },
+                      marks: { ...stu.marks, [subjectName]: marks },
                     }
                   : stu
               ),
@@ -70,7 +76,7 @@ export const SchoolProvider = ({ children }) => {
         addClass,
         addSubjectToClass,
         addStudentToClass,
-        updateStudentMarks,
+        addOrUpdateStudentMark,
       }}
     >
       {children}
