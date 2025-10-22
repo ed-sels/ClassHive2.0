@@ -3,120 +3,62 @@ import { useParams } from "react-router-dom";
 import { SchoolContext } from "../context/SchoolContext";
 
 const SubjectMarks = () => {
-  const { id: classId, subjectName } = useParams();
+  const { id, subjectName } = useParams();
   const { classes, addOrUpdateStudentMark } = useContext(SchoolContext);
+  const cls = classes.find((c) => c.id === id);
 
-  const currentClass = classes.find((cls) => cls.id === classId);
-  const [studentName, setStudentName] = useState("");
-  const [scores, setScores] = useState({
-    test1: "",
-    test2: "",
-    group: "",
-    project: "",
-    exam: "",
-  });
+  const [marksInput, setMarksInput] = useState({}); // { studentId: marks }
 
-  if (!currentClass) return <div>Class not found.</div>;
+  if (!cls) return <p>Class not found</p>;
 
-  const handleAddMark = () => {
-    if (!studentName.trim()) return;
+  const handleChange = (studentId, value) => {
+    setMarksInput((prev) => ({ ...prev, [studentId]: value }));
+  };
 
-    const totalRaw =
-      Number(scores.test1) +
-      Number(scores.test2) +
-      Number(scores.group) +
-      Number(scores.project) +
-      Number(scores.exam);
-
-    const classScore = Number(scores.test1) + Number(scores.test2) + Number(scores.group) + Number(scores.project);
-    const strikedTotal = ((classScore + Number(scores.exam)) / 200) * 100;
-
-    const grade =
-      strikedTotal >= 80
-        ? "A"
-        : strikedTotal >= 70
-        ? "B"
-        : strikedTotal >= 60
-        ? "C"
-        : strikedTotal >= 50
-        ? "D"
-        : "F";
-
-    addOrUpdateStudentMark(classId, subjectName, studentName, {
-      ...scores,
-      total: totalRaw,
-      striked: strikedTotal.toFixed(2),
-      grade,
+  const handleSaveMarks = () => {
+    Object.entries(marksInput).forEach(([studentId, mark]) => {
+      if (mark !== "") addOrUpdateStudentMark(cls.id, studentId, subjectName, Number(mark));
     });
-
-    setStudentName("");
-    setScores({ test1: "", test2: "", group: "", project: "", exam: "" });
+    alert("Marks saved successfully!");
+    setMarksInput({});
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4 text-blue-600">
-        {currentClass.name} - {subjectName} Marks Entry
-      </h2>
+    <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+      <h1 className="text-2xl font-bold mb-4 text-blue-600">
+        Enter Marks for "{subjectName}" - {cls.name}
+      </h1>
 
-      <div className="grid grid-cols-6 gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Student Name"
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
-          className="border px-2 py-1 col-span-2 rounded"
-        />
-        {["test1", "test2", "group", "project", "exam"].map((key) => (
-          <input
-            key={key}
-            type="number"
-            placeholder={key}
-            value={scores[key]}
-            onChange={(e) => setScores({ ...scores, [key]: e.target.value })}
-            className="border px-2 py-1 rounded"
-          />
-        ))}
-      </div>
-      <button
-        onClick={handleAddMark}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mb-6"
-      >
-        Add / Update Mark
-      </button>
-
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse mb-4">
         <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-2 border">Student</th>
-            <th className="p-2 border">Class Score</th>
-            <th className="p-2 border">Exam</th>
-            <th className="p-2 border">Total</th>
-            <th className="p-2 border">Grade</th>
+          <tr className="bg-gray-100">
+            <th className="border px-4 py-2 text-left">Student</th>
+            <th className="border px-4 py-2 text-left">Marks</th>
           </tr>
         </thead>
         <tbody>
-          {currentClass.students.map((s, i) => {
-            const subjMark = s.marks?.[subjectName];
-            if (!subjMark) return null;
-            const classScore =
-              Number(subjMark.test1) +
-              Number(subjMark.test2) +
-              Number(subjMark.group) +
-              Number(subjMark.project);
-
-            return (
-              <tr key={i} className="border-b">
-                <td className="p-2 border">{s.name}</td>
-                <td className="p-2 border">{classScore}</td>
-                <td className="p-2 border">{subjMark.exam}</td>
-                <td className="p-2 border">{subjMark.striked}</td>
-                <td className="p-2 border">{subjMark.grade}</td>
-              </tr>
-            );
-          })}
+          {cls.students.map((stu) => (
+            <tr key={stu.id}>
+              <td className="border px-4 py-2">{stu.name}</td>
+              <td className="border px-4 py-2">
+                <input
+                  type="number"
+                  value={marksInput[stu.id] ?? stu.marks[subjectName] ?? ""}
+                  onChange={(e) => handleChange(stu.id, e.target.value)}
+                  className="border p-1 rounded w-24"
+                />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
+
+      <button
+        onClick={handleSaveMarks}
+        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Save Marks
+      </button>
     </div>
   );
 };
