@@ -4,8 +4,8 @@ export const SchoolContext = createContext();
 
 export const SchoolProvider = ({ children }) => {
   const [classes, setClasses] = useState(() => {
-    const saved = localStorage.getItem("classes");
-    return saved ? JSON.parse(saved) : [];
+    const stored = localStorage.getItem("classes");
+    return stored ? JSON.parse(stored) : [];
   });
 
   useEffect(() => {
@@ -13,13 +13,9 @@ export const SchoolProvider = ({ children }) => {
   }, [classes]);
 
   const addClass = (className) => {
-    const newClass = {
-      id: Date.now().toString(),
-      name: className,
-      subjects: [],
-      students: [],
-    };
-    setClasses((prev) => [...prev, newClass]);
+    if (!className.trim()) return;
+    const newClass = { id: Date.now().toString(), name: className, subjects: [] };
+    setClasses([...classes, newClass]);
   };
 
   const addSubjectToClass = (classId, subjectName) => {
@@ -32,53 +28,31 @@ export const SchoolProvider = ({ children }) => {
     );
   };
 
-  const addStudentToClass = (classId, studentName) => {
+  const saveMarks = (classId, subjectName, studentName, classScore, examScore) => {
     setClasses((prev) =>
-      prev.map((cls) =>
-        cls.id === classId
-          ? {
-              ...cls,
-              students: [
-                ...cls.students,
-                { id: Date.now().toString(), name: studentName, marks: {} },
-              ],
-            }
-          : cls
-      )
-    );
-  };
+      prev.map((cls) => {
+        if (cls.id !== classId) return cls;
 
-  // Renamed function to be clear and match your previous component
-  const addOrUpdateStudentMark = (classId, studentId, subjectName, marks) => {
-    setClasses((prev) =>
-      prev.map((cls) =>
-        cls.id === classId
-          ? {
-              ...cls,
-              students: cls.students.map((stu) =>
-                stu.id === studentId
-                  ? {
-                      ...stu,
-                      marks: { ...stu.marks, [subjectName]: marks },
-                    }
-                  : stu
-              ),
-            }
-          : cls
-      )
+        const subjectKey = `${subjectName}-marks`;
+        const updatedMarks = cls[subjectKey]
+          ? [...cls[subjectKey]]
+          : [];
+
+        const existing = updatedMarks.find((s) => s.name === studentName);
+        if (existing) {
+          existing.classScore = classScore;
+          existing.examScore = examScore;
+        } else {
+          updatedMarks.push({ name: studentName, classScore, examScore });
+        }
+
+        return { ...cls, [subjectKey]: updatedMarks };
+      })
     );
   };
 
   return (
-    <SchoolContext.Provider
-      value={{
-        classes,
-        addClass,
-        addSubjectToClass,
-        addStudentToClass,
-        addOrUpdateStudentMark,
-      }}
-    >
+    <SchoolContext.Provider value={{ classes, addClass, addSubjectToClass, saveMarks }}>
       {children}
     </SchoolContext.Provider>
   );
