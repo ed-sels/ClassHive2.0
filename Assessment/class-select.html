@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Class</title>
+<link rel="stylesheet" href="class-select.css">
+</head>
+<body>
+<nav>
+<div>📚 SBA System</div>
+<span class="mode-switch" onclick="toggleMode()">🌙 Dark Mode</span>
+</nav>
+
+<div class="container">
+<h2>Select Class</h2>
+<div class="grid">
+    <div class="card" onclick="selectClass('Primary 1')">Primary 1</div>
+    <div class="card" onclick="selectClass('Primary 2')">Primary 2</div>
+    <div class="card" onclick="selectClass('Primary 3')">Primary 3</div>
+    <div class="card" onclick="selectClass('Primary 4')">Primary 4</div>
+    <div class="card" onclick="selectClass('Primary 5')">Primary 5</div>
+    <div class="card" onclick="selectClass('Primary 6')">Primary 6</div>
+    <div class="card" onclick="selectClass('Primary 7')">Primary 7</div>
+    <div class="card" onclick="selectClass('Primary 8')">Primary 8</div>
+    <div class="card" onclick="selectClass('Primary 9')">Primary 9</div>
+</div>
+</div>
+
+<script>
+function toggleMode(){
+    document.body.classList.toggle("dark");
+    document.querySelector(".mode-switch").textContent=document.body.classList.contains("dark")?"☀️ Light Mode":"🌙 Dark Mode";
+}
+function selectClass(cls){
+    localStorage.setItem("selectedClass", cls);
+    window.location.href="select-subject.html";
+}
+</script>
+</body>
+</html>

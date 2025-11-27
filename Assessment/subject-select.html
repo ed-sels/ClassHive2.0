@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Subject</title>
+<link rel="stylesheet" href="subject-select.css">
+</head>
+<body>
+<nav>
+<div>📚 SBA System</div>
+<span class="mode-switch" onclick="toggleMode()">🌙 Dark Mode</span>
+</nav>
+
+<div class="container">
+<h2>Select Subject for <span id="className"></span></h2>
+<div class="grid">
+    <div class="card" onclick="selectSubject('Mathematics')">Mathematics</div>
+    <div class="card" onclick="selectSubject('English')">English</div>
+    <div class="card" onclick="selectSubject('Science')">Science</div>
+    <div class="card" onclick="selectSubject('Computing')">Computing</div>
+    <div class="card" onclick="selectSubject('Twi')">Asante Twi</div>
+    <div class="card" onclick="selectSubject('French')">French</div>
+    <div class="card" onclick="selectSubject('RME')">Religious and Moral Education</div>
+</div>
+</div>
+
+<script>
+document.getElementById("className").textContent = localStorage.getItem("selectedClass");
+
+function toggleMode(){
+    document.body.classList.toggle("dark");
+    document.querySelector(".mode-switch").textContent=document.body.classList.contains("dark")?"☀️ Light Mode":"🌙 Dark Mode";
+}
+
+function selectSubject(sub){
+    localStorage.setItem("selectedSubject", sub);
+    window.location.href="assess-entry.html";
+}
+</script>
+</body>
+</html>
